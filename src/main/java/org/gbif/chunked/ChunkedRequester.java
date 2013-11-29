@@ -13,7 +13,12 @@ import com.sun.jersey.api.client.config.DefaultClientConfig;
 import com.sun.jersey.api.json.JSONConfiguration;
 import com.sun.jersey.client.apache4.ApacheHttpClient4;
 import com.sun.jersey.client.apache4.ApacheHttpClient4Handler;
+import org.apache.http.client.params.ClientPNames;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.params.BasicHttpParams;
+import org.apache.http.params.CoreProtocolPNames;
+import org.apache.http.params.HttpConnectionParams;
+import org.apache.http.params.HttpParams;
 import org.codehaus.jackson.jaxrs.JacksonJsonProvider;
 import org.eclipse.jetty.server.Server;
 
@@ -41,12 +46,20 @@ public class ChunkedRequester extends TimerTask {
   }
 
   public static ChunkedRequester buildApacheJerseyClient(int port) {
-    ApacheHttpClient4Handler hch = new ApacheHttpClient4Handler(new DefaultHttpClient(), null, false);
+    final int timeout = 2000;
+    HttpParams params = new BasicHttpParams();
+    params.setParameter(CoreProtocolPNames.HTTP_CONTENT_CHARSET, "UTF_8");
+    HttpConnectionParams.setConnectionTimeout(params, timeout);
+    HttpConnectionParams.setSoTimeout(params, timeout);
+    params.setLongParameter(ClientPNames.CONN_MANAGER_TIMEOUT, timeout);
+
+    ApacheHttpClient4Handler hch = new ApacheHttpClient4Handler(new DefaultHttpClient(params), null, false);
     ClientConfig clientConfig = new DefaultClientConfig();
     clientConfig.getClasses().add(JacksonJsonContextResolver.class);
     // this line is critical! Note that this is the jersey version of this class name!
     clientConfig.getClasses().add(JacksonJsonProvider.class);
     clientConfig.getFeatures().put(JSONConfiguration.FEATURE_POJO_MAPPING, Boolean.TRUE);
+
     Client c = new ApacheHttpClient4(hch, clientConfig);
     return new ChunkedRequester(c, port);
   }
