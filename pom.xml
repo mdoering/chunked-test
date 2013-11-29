@@ -11,7 +11,7 @@
   <properties>
     <jersey.version>1.17</jersey.version>
     <jackson.version>1.9.12</jackson.version><!-- it's critical that the jersey and jackson versions "match" ie that jersey depends on the specified version of jackson -->
-    <httpclient.version>3.1</httpclient.version>
+    <httpclient.version>4.2.5</httpclient.version>
     <guava.version>14.0.1</guava.version>
     <jetty.version>9.0.5.v20130815</jetty.version>
   </properties>
@@ -110,11 +110,21 @@
       <artifactId>jackson-core-asl</artifactId>
       <version>${jackson.version}</version>
     </dependency>
-
     <dependency>
-      <groupId>commons-httpclient</groupId>
-      <artifactId>commons-httpclient</artifactId>
+      <groupId>com.sun.jersey.contribs</groupId>
+      <artifactId>jersey-apache-client4</artifactId>
+      <version>${jersey.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.httpcomponents</groupId>
+      <artifactId>httpclient</artifactId>
       <version>${httpclient.version}</version>
+      <exclusions>
+        <exclusion>
+          <artifactId>commons-logging</artifactId>
+          <groupId>commons-logging</groupId>
+        </exclusion>
+      </exclusions>
     </dependency>
 
   </dependencies>

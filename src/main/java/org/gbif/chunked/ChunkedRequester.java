@@ -11,9 +11,9 @@ import com.sun.jersey.api.client.WebResource;
 import com.sun.jersey.api.client.config.ClientConfig;
 import com.sun.jersey.api.client.config.DefaultClientConfig;
 import com.sun.jersey.api.json.JSONConfiguration;
-import com.sun.jersey.client.apache.ApacheHttpClient;
-import com.sun.jersey.client.apache.ApacheHttpClientHandler;
-import org.apache.commons.httpclient.HttpClient;
+import com.sun.jersey.client.apache4.ApacheHttpClient4;
+import com.sun.jersey.client.apache4.ApacheHttpClient4Handler;
+import org.apache.http.impl.client.DefaultHttpClient;
 import org.codehaus.jackson.jaxrs.JacksonJsonProvider;
 import org.eclipse.jetty.server.Server;
 
@@ -40,14 +40,14 @@ public class ChunkedRequester extends TimerTask {
     return new ChunkedRequester(c, vport);
   }
 
-  public static ChunkedRequester buildApache31JerseyClient(int port) {
+  public static ChunkedRequester buildApacheJerseyClient(int port) {
+    ApacheHttpClient4Handler hch = new ApacheHttpClient4Handler(new DefaultHttpClient(), null, false);
     ClientConfig clientConfig = new DefaultClientConfig();
     clientConfig.getClasses().add(JacksonJsonContextResolver.class);
     // this line is critical! Note that this is the jersey version of this class name!
     clientConfig.getClasses().add(JacksonJsonProvider.class);
     clientConfig.getFeatures().put(JSONConfiguration.FEATURE_POJO_MAPPING, Boolean.TRUE);
-    ApacheHttpClientHandler handler = new ApacheHttpClientHandler(new HttpClient(), clientConfig);
-    Client c = new ApacheHttpClient(handler);
+    Client c = new ApacheHttpClient4(hch, clientConfig);
     return new ChunkedRequester(c, port);
   }
 
@@ -58,7 +58,7 @@ public class ChunkedRequester extends TimerTask {
   }
 
   public void run() {
-    post(new Hello("Varnish", new Date()));
+    post(new Hello("Varnish", new Date(), "bla ", 100));
   }
 
   /**
@@ -81,12 +81,13 @@ public class ChunkedRequester extends TimerTask {
     server.start();
 
     // And From your main() method or any other method
-    TimerTask taskNonChunked = buildDefaultJerseyClient(Integer.valueOf(args[0]));
-    TimerTask taskChunked = buildDefaultJerseyClient(Integer.valueOf(args[0]));
-
     Timer timer = new Timer();
-    timer.scheduleAtFixedRate(taskNonChunked, 0, 2000);
-    timer.scheduleAtFixedRate(taskChunked, 1000, 2000);
+
+    TimerTask taskChunked = buildApacheJerseyClient(Integer.valueOf(args[0]));
+    timer.scheduleAtFixedRate(taskChunked, 0, 2000);
+
+    TimerTask taskNonChunked = buildDefaultJerseyClient(Integer.valueOf(args[0]));
+    timer.scheduleAtFixedRate(taskNonChunked, 500, 2000);
 
     server.join();
   }
