@@ -1,4 +1,4 @@
-package org.gbif.ws.servlet;
+package org.gbif.chunked;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -6,33 +6,23 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.util.Enumeration;
 import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.google.common.io.CharStreams;
+import org.eclipse.jetty.server.Request;
+import org.eclipse.jetty.server.handler.AbstractHandler;
 
-public class LogServlet extends HttpServlet {
+/**
+ *
+ */
+public class RequestLogHandler extends AbstractHandler {
+  public void handle(String target, Request baseRequest, HttpServletRequest req, HttpServletResponse resp)
+    throws IOException, ServletException {
+    resp.setContentType("text/plain;charset=utf-8");
+    baseRequest.setHandled(true);
 
-  @Override
-  protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-    log(req, resp);
-  }
-
-  @Override
-  protected void doPut(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-    log(req, resp);
-  }
-
-  @Override
-  protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-    log(req, resp);
-  }
-
-  private void log(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-    resp.setContentType("text/plain");
     PrintWriter out = resp.getWriter();
-
     out.println(req.getMethod() + ": " + req.getRequestURI());
 
     out.println("Headers:");

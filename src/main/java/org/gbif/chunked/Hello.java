@@ -1,20 +1,18 @@
-package org.gbif.ws.servlet;
+package org.gbif.chunked;
 
 import java.util.Date;
 
-public class Greeting {
+public class Hello {
   private String name;
   private Date date;
-  private String location;
 
-  public Greeting() {
+  public Hello() {
 
   }
 
-  public Greeting(String name, Date date, String location) {
+  public Hello(String name, Date date) {
     this.name = name;
     this.date = date;
-    this.location = location;
   }
 
   public String getName() {
@@ -31,13 +29,5 @@ public class Greeting {
 
   public void setDate(Date date) {
     this.date = date;
-  }
-
-  public String getLocation() {
-    return location;
-  }
-
-  public void setLocation(String location) {
-    this.location = location;
   }
 }
